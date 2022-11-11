@@ -1,3 +1,20 @@
+# Cite: @article{demianski17,
+#       author = {{Demianski}, Marek and {Piedipalumbo}, Ester and {Sawant}, Disha and {Amati}, Lorenzo},
+#        title = "{Cosmology with gamma-ray bursts. I. The Hubble diagram through the calibrated E$_{p,I}$-E$_{iso}$ correlation}",
+#      journal = {\aap},
+#     keywords = {cosmological parameters, dark energy, cosmology: theory, Astrophysics - Cosmology and Nongalactic Astrophysics, Astrophysics - High Energy Astrophysical Phenomena},
+#         year = 2017,
+#        month = feb,
+#       volume = {598},
+#          eid = {A112},
+#        pages = {A112},
+#          doi = {10.1051/0004-6361/201628909},
+#archivePrefix = {arXiv},
+#       eprint = {1610.00854},
+# primaryClass = {astro-ph.CO},
+#       adsurl = {https://ui.adsabs.harvard.edu/abs/2017A&A...598A.112D},
+#      adsnote = {Provided by the SAO/NASA Astrophysics Data System}
+#}
 #GRBs ID Redshift µ σµ Ep,i (keV) σEp,i Eiso (1052 erg) σEiso
 060 218 0.03351 35.1195 0.933638 4.9 0.3 0.00535399 0.000259064
 060 614 0.125 38.6856 1.84671 55. 45. 0.216774 0.0867097
