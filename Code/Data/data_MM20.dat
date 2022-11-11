@@ -1,3 +1,21 @@
+#@ARTICLE{moresco20,
+#       author = {{Moresco}, Michele and {Jimenez}, Raul and {Verde}, Licia and {Cimatti}, Andrea and {Pozzetti}, Lucia},
+#        title = "{Setting the Stage for Cosmic Chronometers. II. Impact of Stellar Population Synthesis Models Systematics and Full Covariance Matrix}",
+#      journal = {\apj},
+#     keywords = {Galaxy evolution, Galaxy stellar content, Observational cosmology, Cosmological parameters, 594, 621, 1146, 339, Astrophysics - Astrophysics of Galaxies, Astrophysics - Cosmology and Nongalactic Astrophysics},
+#         year = 2020,
+#        month = jul,
+#       volume = {898},
+#       number = {1},
+#          eid = {82},
+#        pages = {82},
+#          doi = {10.3847/1538-4357/ab9eb0},
+#archivePrefix = {arXiv},
+#       eprint = {2003.07362},
+# primaryClass = {astro-ph.GA},
+#       adsurl = {https://ui.adsabs.harvard.edu/abs/2020ApJ...898...82M},
+#      adsnote = {Provided by the SAO/NASA Astrophysics Data System}
+#}
 # z   IMF  stlib  mod  mod_ooo
 0.075 0.47 7.40 15.86 9.91
 0.125 0.47 7.40 14.23 6.98
