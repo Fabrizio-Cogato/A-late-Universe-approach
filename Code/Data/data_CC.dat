@@ -1,3 +1,18 @@
+# Cite: @article{morescorev22,
+#       author = {{Moresco}, Michele and {Amati}, Lorenzo and {Amendola}, Luca and {Birrer}, Simon and {Blakeslee}, John P. and {Cantiello}, Michele and {Cimatti}, Andrea and {Darling}, Jeremy and {Della Valle}, Massimo and {Fishbach}, Maya and {Grillo}, Claudio and {Hamaus}, Nico and {Holz}, Daniel and {Izzo}, Luca and {Jimenez}, Raul and {Lusso}, Elisabeta and {Meneghetti}, Massimo and {Piedipalumbo}, Ester and {Pisani}, Alice and {Pourtsidou}, Alkistis and {Pozzetti}, Lucia and {Quartin}, Miguel and {Risaliti}, Guido and {Rosati}, Piero and {Verde}, Licia},
+#        title = "{Unveiling the Universe with Emerging Cosmological Probes}",
+#      journal = {arXiv e-prints},
+#     keywords = {Astrophysics - Cosmology and Nongalactic Astrophysics},
+#         year = 2022,
+#        month = jan,
+#          eid = {arXiv:2201.07241},
+#        pages = {arXiv:2201.07241},
+#archivePrefix = {arXiv},
+#       eprint = {2201.07241},
+# primaryClass = {astro-ph.CO},
+#       adsurl = {https://ui.adsabs.harvard.edu/abs/2022arXiv220107241M},
+#      adsnote = {Provided by the SAO/NASA Astrophysics Data System}
+#}
 #z	Hz	errHz	Ref_ID
 0.07	69.0	19.6	5
 0.09	69.0	12.0	1
