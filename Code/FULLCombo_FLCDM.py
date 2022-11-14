@@ -242,9 +242,9 @@ def run_MCMC(prior, cosmo, probe, dir_chain, arguments, nwalkers, initials, Nste
         lp = lnflatprior_FLCDM(theta)
         return lp + lnlikeBAOCCSNGRB_FLCDM(theta, zAlam, dataAlam, inv_cov_alam, zWiggle, dataWiggle, inv_cov_wiggleZ, zSDSS, dataSDSS, inv_cov_SDSS, z6dFGS, rdDV6dFGS, err6dFGS, zeBOSS, DHrdeBOSS, erreBOSS, zC, Hz, inv_cov_matC, zS, DmS, inv_cov_matS, zG, DmG, errDmG) if np.isfinite(lp) else -np.inf
 
-    #############
-    ##############
-    ############### Markov Chain Monte Carlo
+    ##############################
+    ## Markov Chain Monte Carlo ##
+    ##############################
     initial = initials
     ndim = len(initial)
     p0 = [np.array(initial) + 1e-2 * np.random.randn(ndim) for i in range(nwalkers)]
@@ -267,6 +267,7 @@ dir_chain = dir_home+'/Chains/'
 #############################
 ##############
 ## BAO data ##
+##############
 os.chdir(dir_data)
 filename = 'data_DM_DH_SDSSIV.dat'
 z, dataSDSS = np.genfromtxt(filename, usecols=(0,1), unpack=True, delimiter="\t")
@@ -319,6 +320,7 @@ zeBOSS.append(z)
 
 #############
 ## CC data ##
+#############
 filename = 'data_CC.dat'
 zC, Hz, errHz = np.genfromtxt(filename, comments='#', usecols=(0,1,2), unpack=True, delimiter="\t")
 # Data Sys
@@ -351,7 +353,8 @@ inv_cov_mat_diagC = np.linalg.inv(cov_mat_diagC)
 
 ##############
 ## SNe data ##
-## Pantheon
+## Pantheon ##
+##############
 filename='panstarrs_PS1COSMO_bin.dat'
 zS_P, DmS_P, errDmS_P = np.genfromtxt(filename, usecols=(1,4,5), unpack=True, comments='#')
 DmS_P=DmS_P+19.35
@@ -363,7 +366,7 @@ inv_cov_matS_P = np.linalg.inv(covS_P)
 
 ##############
 ## GRB data ##
-
+##############
 filename = 'Results_deltaM_flcdm.dat'
 deltaM_FLCDM=np.genfromtxt(filename, usecols=(0), unpack=True, comments='#')
 
@@ -386,12 +389,9 @@ initials_FLCDM= np.array([in_H0, in_Om, in_M, in_rd, in_rat])
 nwalkers=250
 Nsteps=5000
 
-# BAO + CC + SN + GRB
 arg_BAOCCSNGRB= (zAlam, dataAlam, inv_cov_alam, zWiggle, dataWiggle, inv_cov_wiggleZ, zSDSS, dataSDSS, inv_cov_SDSS, z6dFGS, rdDV6dFGS, err6dFGS, zeBOSS, DHrdeBOSS, erreBOSS, zC, Hz, inv_cov_matC, zS_P, DmS_P, inv_cov_matS_P, zG, DmG, errDmG)
 
 ##############
-#### Main ####
-##############
 ## MCMC Run ##
-######## FLCDM ######
+##############
 run_MCMC('Flat', 'FLCDM', 'BAOCCSNGRB', dir_chain, arg_BAOCCSNGRB, nwalkers, initials_FLCDM, Nsteps)
