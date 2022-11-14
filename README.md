@@ -1,5 +1,4 @@
 # A late-Universe approach to the weaving of modern cosmology 
-             (F. Cogato and M. Moresco)
 
 This repository collects a sketch of the computational tool implemented to infer cosmological parameters, as well as some examples of the main products.
 
