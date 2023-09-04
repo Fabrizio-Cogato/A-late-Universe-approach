@@ -1,6 +1,6 @@
 # A late-Universe approach to the weaving of modern cosmology 
 
-This repository collects a sketch of the computational tool implemented to infer cosmological parameters, as well as some examples of its main products.
+Once the paper is accepted and published, this repository will collect a sketch of the computational tool implemented to infer cosmological parameters, as well as some examples of its main products.
 
   - Code.folder: Example of the python code and the full collection of data (with reference)
   - Plots.folder: Example of the plots obtained from the analysis in 'Code.folder'
