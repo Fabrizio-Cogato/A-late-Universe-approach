@@ -1,7 +1,16 @@
 # A late-Universe approach to the weaving of modern cosmology 
 
-Once the paper is accepted and published, this repository will collect a sketch of the computational tool implemented to infer cosmological parameters, as well as some examples of its main products.
+This repository contains the main tool implemented to carry out the cosmological analysis described in https://ui.adsabs.harvard.edu/abs/2023arXiv230901375C/abstract
 
-  - Code.folder: Example of the python code and the full collection of data (with reference)
-  - Plots.folder: Example of the plots obtained from the analysis in 'Code.folder'
-  - Results_Summary.pdf: Overview of the results obtained in this work. It is reported each combination of probes and each model. 
+* Analytical_Cosmo_Config.py | Python script defining functions, likelihood, prior and posterior distribution for the following cosmological models:
+    - Flat LCDM
+    - LCDM
+    - Flat wCDM
+    - wCDM
+    - Flat w0waCDM
+    - w0waCDM
+
+* Analytical_Cosmo.py | Python script for running MCMC sampling:
+
+
+https://ui.adsabs.harvard.edu/abs/2023arXiv230901375C/abstract
