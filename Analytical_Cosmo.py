@@ -228,9 +228,9 @@ arg_CC= (zC, Hz, inv_cov_matC)
 
 ################
 ####Run MCMC####
-run_MCMC('Flat', 'FLCDM', 'BAOCCSNGRB', dir_chain, arg_BAOCCSN, nwalkers, initials_FLCDM, Nsteps)
-run_MCMC('Flat', 'LCDM', 'BAOCCSNGRB', dir_chain, arg_BAOCCSN, nwalkers, initials_OLCDM, Nsteps)
-run_MCMC('Flat', 'FwCDM', 'BAOCCSNGRB', dir_chain, arg_BAOCCSN, nwalkers, initials_FwCDM, Nsteps)
-run_MCMC('Flat', 'wCDM', 'BAOCCSNGRB', dir_chain, arg_BAOCCSN, nwalkers, initials_OwCDM, Nsteps)
-run_MCMC('Flat', 'Fw0waCDM', 'BAOCCSNGRB', dir_chain, arg_BAOCCSN, nwalkers, initials_Fw0waCDM, Nsteps)
-run_MCMC('Flat', 'w0waCDM', 'BAOCCSNGRB', dir_chain, arg_BAOCCSN, nwalkers, initials_Ow0waCDM, Nsteps)
+run_MCMC('Flat', 'FLCDM', 'BAOCCSN', dir_chain, arg_BAOCCSN, nwalkers, initials_FLCDM, Nsteps)
+run_MCMC('Flat', 'LCDM', 'BAOCCSN', dir_chain, arg_BAOCCSN, nwalkers, initials_OLCDM, Nsteps)
+run_MCMC('Flat', 'FwCDM', 'BAOCCSN', dir_chain, arg_BAOCCSN, nwalkers, initials_FwCDM, Nsteps)
+run_MCMC('Flat', 'wCDM', 'BAOCCSN', dir_chain, arg_BAOCCSN, nwalkers, initials_OwCDM, Nsteps)
+run_MCMC('Flat', 'Fw0waCDM', 'BAOCCSN', dir_chain, arg_BAOCCSN, nwalkers, initials_Fw0waCDM, Nsteps)
+run_MCMC('Flat', 'w0waCDM', 'BAOCCSN', dir_chain, arg_BAOCCSN, nwalkers, initials_Ow0waCDM, Nsteps)
