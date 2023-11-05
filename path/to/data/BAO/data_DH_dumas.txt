@@ -1,0 +1,2 @@
+#z	DH_over_rs	errDH_over_rs
+2.334	8.99	0.43 

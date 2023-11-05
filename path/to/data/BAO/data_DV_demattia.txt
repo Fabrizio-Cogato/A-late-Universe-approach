@@ -1,0 +1,2 @@
+#z	DV_over_rs	errDV_over_rs
+0.845  	18.33	0.595
