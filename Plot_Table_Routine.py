@@ -32,12 +32,14 @@ from chainconsumer import ChainConsumer
 def column(matrix, i):                          
     return [row[i] for row in matrix]
 
-def plot_bestfitMCMC(cosmo, probe, burnin, dir_chain, dir_plot):
+def plot_bestfitMCMC(cosmo, probe, chain_dim, nwalk, par_dim, dir_chain, dir_plot):
     os.chdir(dir_chain+probe)
-    filename = "Chain_FlatPrior_{0}_{1}.h5".format(cosmo,probe)
-    chain = emcee.backends.HDFBackend(filename)
-    flat_samples = chain.get_chain(discard=burnin, flat=True, thin=1)
-    samples = chain.get_chain()
+    filename = "Chain_FlatPrior_{0}_{1}.txt".format(cosmo,probe)
+    with open(filename, 'r') as file:
+        lines = file.read().splitlines()
+        data = np.array([list(map(float, line.split())) for line in lines])
+    samples = data.reshape((chain_dim, nwalk, par_dim))
+    flat_samples = samples.reshape(-1, par_dim)
 
     if cosmo=='FLCDM':
         parstep = [samples[:,:,0], samples[:,:,1], samples[:,:,2], samples[:,:,3], samples[:,:,4], samples[:,:,5], samples[:,:,6]]
@@ -79,7 +81,6 @@ def plot_bestfitMCMC(cosmo, probe, burnin, dir_chain, dir_plot):
     for i in range(ndim):
         ax = axes[i]
         ax.plot(parstep[i], "k", alpha=0.3, zorder=1)
-        ax.axvspan(0, burnin, facecolor='firebrick', alpha=0.3, zorder= 2)
         ax.set_xlim(0, len(samples))
         ax.set_ylabel(labels[i], fontsize=16)
         ax.yaxis.set_label_coords(-0.1, 0.5)
@@ -89,7 +90,7 @@ def plot_bestfitMCMC(cosmo, probe, burnin, dir_chain, dir_plot):
     os.chdir(dir_plot)
     plt.savefig(r'ParStep_FlatPrior_{0}_{1}.png'.format(cosmo, probe), dpi=350)
     os.chdir(dir_home)
-    plt.clf()
+    plt.close()
     
 
     #Corner
@@ -102,40 +103,52 @@ def plot_bestfitMCMC(cosmo, probe, burnin, dir_chain, dir_plot):
     os.chdir(dir_plot)
     c.plotter.plot(filename=f'Corner_{cosmo}_{probe}', parameters=labels, figsize="page")
     os.chdir(dir_home)
-    plt.clf()
+    plt.close()
 
-
-
-def table_paper(probe, burnin, dir_chain, dir_out): 
+def table_paper(probe, chain_dim, nwalk, dir_chain, dir_out): 
     dirchain=dir_chain+probe   
-    thin=1
     os.chdir(dirchain)
-    FLCDM = "Chain_FlatPrior_FLCDM_{0}.h5".format(probe)
-    chain = emcee.backends.HDFBackend(FLCDM)
+    FLCDM = "Chain_FlatPrior_FLCDM_{0}.txt".format(probe)
+    with open(FLCDM, 'r') as file:
+        lines = file.read().splitlines()
+        data = np.array([list(map(float, line.split())) for line in lines])
+    samples = data.reshape((chain_dim, nwalk, 7))
+    flcdm = samples.reshape(-1, 7)
     
-    flcdm = chain.get_chain(discard=burnin[0], flat=True, thin=thin)
-    prob_flcdm=chain.get_log_prob(discard=burnin[0], flat=True, thin=thin)
+    LCDM = "Chain_FlatPrior_LCDM_{0}.txt".format(probe)
+    with open(LCDM, 'r') as file:
+        lines = file.read().splitlines()
+        data = np.array([list(map(float, line.split())) for line in lines])
+    samples = data.reshape((chain_dim, nwalk, 8))
+    lcdm = samples.reshape(-1, 8)
     
-    LCDM = "Chain_FlatPrior_LCDM_{0}.h5".format(probe)
-    chain = emcee.backends.HDFBackend(LCDM)
-    lcdm = chain.get_chain(discard=burnin[1], flat=True, thin=thin)
-    prob_lcdm=chain.get_log_prob(discard=burnin[1], flat=True, thin=thin)
+    FwCDM = "Chain_FlatPrior_FwCDM_{0}.txt".format(probe)
+    with open(FwCDM, 'r') as file:
+        lines = file.read().splitlines()
+        data = np.array([list(map(float, line.split())) for line in lines])
+    samples = data.reshape((chain_dim, nwalk, 8))
+    fwcdm = samples.reshape(-1, 8)
     
-    FWCDM = "Chain_FlatPrior_FwCDM_{0}.h5".format(probe)
-    chain = emcee.backends.HDFBackend(FWCDM)
-    fwcdm = chain.get_chain(discard=burnin[2], flat=True, thin=thin)
+    wCDM = "Chain_FlatPrior_wCDM_{0}.txt".format(probe)
+    with open(wCDM, 'r') as file:
+        lines = file.read().splitlines()
+        data = np.array([list(map(float, line.split())) for line in lines])
+    samples = data.reshape((chain_dim, nwalk, 9))
+    wcdm = samples.reshape(-1, 9)
     
-    WCDM = "Chain_FlatPrior_wCDM_{0}.h5".format(probe)
-    chain = emcee.backends.HDFBackend(WCDM)
-    wcdm = chain.get_chain(discard=burnin[3], flat=True, thin=thin)
+    Fw0waCDM = "Chain_FlatPrior_Fw0waCDM_{0}.txt".format(probe)
+    with open(Fw0waCDM, 'r') as file:
+        lines = file.read().splitlines()
+        data = np.array([list(map(float, line.split())) for line in lines])
+    samples = data.reshape((chain_dim, nwalk, 9))
+    fw0wacdm = samples.reshape(-1, 9)
     
-    Fw0waCDM = "Chain_FlatPrior_Fw0waCDM_{0}.h5".format(probe)
-    chain = emcee.backends.HDFBackend(Fw0waCDM)
-    fw0wacdm = chain.get_chain(discard=burnin[4], flat=True, thin=thin)
-    
-    W0WaCDM = "Chain_FlatPrior_w0waCDM_{0}.h5".format(probe)
-    chain = emcee.backends.HDFBackend(W0WaCDM)
-    w0wacdm = chain.get_chain(discard=burnin[5], flat=True, thin=thin)
+    W0WaCDM = "Chain_FlatPrior_w0waCDM_{0}.txt".format(probe)
+    with open(W0WaCDM, 'r') as file:
+        lines = file.read().splitlines()
+        data = np.array([list(map(float, line.split())) for line in lines])
+    samples = data.reshape((chain_dim, nwalk, 10))
+    w0wacdm = samples.reshape(-1, 10)
 
 
     perc = [0.15, 2.3, 15.85, 50, 84.15, 97.7, 99.85]
@@ -509,16 +522,16 @@ def table_paper(probe, burnin, dir_chain, dir_out):
     
     return fileout.close()
 
-def Table_MCMC(prior, cosmo, cosmolatex, dir_chain, dir_out):
-    burnin=4000
-    thin=5
-    os.chdir(dir_chain) 
+def Table_MCMC(cosmo, chain_dim, nwalk, par_dim, cosmolatex, dir_chain, dir_out):
     ### 4 ####
     os.chdir(dir_chain+'BAOCCSNGRB')
-    filename = 'Chain_{0}Prior_{1}_BAOCCSNGRB.h5'.format(prior, cosmo)
-    Read_Chain = emcee.backends.HDFBackend(filename)
-    len_ch=len(Read_Chain.get_chain())
-    BAO_CC_SN_GRB = Read_Chain.get_chain(discard=(len_ch-burnin), flat=True, thin=thin)
+    filename = 'Chain_FlatPrior_{0}_BAOCCSNGRB.txt'.format(cosmo)
+    with open(filename, 'r') as file:
+        lines = file.read().splitlines()
+        data = np.array([list(map(float, line.split())) for line in lines])
+    samples = data.reshape((chain_dim, nwalk, par_dim))
+    flat_samples = samples.reshape(-1, par_dim)
+    BAO_CC_SN_GRB = flat_samples
     if cosmo=='LCDM':
         H0=np.array(column(BAO_CC_SN_GRB,0))
         Om=np.array(column(BAO_CC_SN_GRB,1))
@@ -563,10 +576,13 @@ def Table_MCMC(prior, cosmo, cosmolatex, dir_chain, dir_out):
         BAO_CC_SN_GRB = np.transpose(np.array([H0,Om,OL,Ok,w0,wa,M,a,b,scat,rd]))
     ### 3 ###
     os.chdir(dir_chain+'BAOCCGRB')
-    filename = 'Chain_{0}Prior_{1}_BAOCCGRB.h5'.format(prior, cosmo)
-    Read_Chain = emcee.backends.HDFBackend(filename)
-    len_ch=len(Read_Chain.get_chain())
-    BAO_CC_GRB = Read_Chain.get_chain(discard=(len_ch-burnin), flat=True, thin=thin)
+    filename = 'Chain_FlatPrior_{0}_BAOCCGRB.txt'.format(cosmo)
+    with open(filename, 'r') as file:
+        lines = file.read().splitlines()
+        data = np.array([list(map(float, line.split())) for line in lines])
+    samples = data.reshape((chain_dim, nwalk, par_dim))
+    flat_samples = samples.reshape(-1, par_dim)
+    BAO_CC_GRB = flat_samples
     if cosmo=='LCDM':
         H0=np.array(column(BAO_CC_GRB,0))
         Om=np.array(column(BAO_CC_GRB,1))
@@ -610,10 +626,13 @@ def Table_MCMC(prior, cosmo, cosmolatex, dir_chain, dir_out):
             Ok.append(1-Om[i]-OL[i])
         BAO_CC_GRB = np.transpose(np.array([H0,Om,OL,Ok,w0,wa,M,a,b,scat,rd]))
     os.chdir(dir_chain+'BAOSNGRB')
-    filename = 'Chain_{0}Prior_{1}_BAOSNGRB.h5'.format(prior, cosmo)
-    Read_Chain = emcee.backends.HDFBackend(filename)
-    len_ch=len(Read_Chain.get_chain())
-    BAO_SN_GRB = Read_Chain.get_chain(discard=(len_ch-burnin), flat=True, thin=thin)
+    filename = 'Chain_FlatPrior_{0}_BAOSNGRB.txt'.format(cosmo)
+    with open(filename, 'r') as file:
+        lines = file.read().splitlines()
+        data = np.array([list(map(float, line.split())) for line in lines])
+    samples = data.reshape((chain_dim, nwalk, par_dim))
+    flat_samples = samples.reshape(-1, par_dim)
+    BAO_SN_GRB = flat_samples
     if cosmo=='LCDM':
         H0=np.array(column(BAO_SN_GRB,0))
         Om=np.array(column(BAO_SN_GRB,1))
@@ -657,10 +676,13 @@ def Table_MCMC(prior, cosmo, cosmolatex, dir_chain, dir_out):
             Ok.append(1-Om[i]-OL[i])
         BAO_SN_GRB = np.transpose(np.array([H0,Om,OL,Ok,w0,wa,M,a,b,scat,rd]))
     os.chdir(dir_chain+'CCSNGRB')
-    filename = 'Chain_{0}Prior_{1}_CCSNGRB.h5'.format(prior, cosmo)
-    Read_Chain = emcee.backends.HDFBackend(filename)
-    len_ch=len(Read_Chain.get_chain())
-    CC_SN_GRB = Read_Chain.get_chain(discard=(len_ch-burnin), flat=True, thin=thin)
+    filename = 'Chain_FlatPrior_{0}_CCSNGRB.txt'.format(cosmo)
+    with open(filename, 'r') as file:
+        lines = file.read().splitlines()
+        data = np.array([list(map(float, line.split())) for line in lines])
+    samples = data.reshape((chain_dim, nwalk, par_dim))
+    flat_samples = samples.reshape(-1, par_dim)
+    CC_SN_GRB = flat_samples
     if cosmo=='LCDM':
         H0=np.array(column(CC_SN_GRB,0))
         Om=np.array(column(CC_SN_GRB,1))
@@ -704,10 +726,13 @@ def Table_MCMC(prior, cosmo, cosmolatex, dir_chain, dir_out):
             Ok.append(1-Om[i]-OL[i])
         CC_SN_GRB = np.transpose(np.array([H0,Om,OL,Ok,w0,wa,M,a,b,scat,rd])) 
     os.chdir(dir_chain+'BAOCCSN')
-    filename = 'Chain_{0}Prior_{1}_BAOCCSN.h5'.format(prior, cosmo)
-    Read_Chain = emcee.backends.HDFBackend(filename)
-    len_ch=len(Read_Chain.get_chain())
-    BAO_CC_SN = Read_Chain.get_chain(discard=(len_ch-burnin), flat=True, thin=thin)
+    filename = 'Chain_FlatPrior_{0}_BAOCCSN.txt'.format(cosmo)
+    with open(filename, 'r') as file:
+        lines = file.read().splitlines()
+        data = np.array([list(map(float, line.split())) for line in lines])
+    samples = data.reshape((chain_dim, nwalk, par_dim))
+    flat_samples = samples.reshape(-1, par_dim)
+    BAO_CC_SN = flat_samples
     if cosmo=='LCDM':
         H0=np.array(column(BAO_CC_SN,0))
         Om=np.array(column(BAO_CC_SN,1))
@@ -752,10 +777,13 @@ def Table_MCMC(prior, cosmo, cosmolatex, dir_chain, dir_out):
         BAO_CC_SN = np.transpose(np.array([H0,Om,OL,Ok,w0,wa,M,a,b,scat,rd]))
     ### 2 ###
     os.chdir(dir_chain+'BAOCC')
-    filename = 'Chain_{0}Prior_{1}_BAOCC.h5'.format(prior, cosmo)
-    Read_Chain = emcee.backends.HDFBackend(filename)
-    len_ch=len(Read_Chain.get_chain())
-    BAO_CC = Read_Chain.get_chain(discard=(len_ch-burnin), flat=True, thin=thin)   
+    filename = 'Chain_FlatPrior_{0}_BAOCC.txt'.format(cosmo)
+    with open(filename, 'r') as file:
+        lines = file.read().splitlines()
+        data = np.array([list(map(float, line.split())) for line in lines])
+    samples = data.reshape((chain_dim, nwalk, par_dim))
+    flat_samples = samples.reshape(-1, par_dim)
+    BAO_CC = flat_samples   
     if cosmo=='LCDM':
         H0=np.array(column(BAO_CC,0))
         Om=np.array(column(BAO_CC,1))
@@ -799,10 +827,13 @@ def Table_MCMC(prior, cosmo, cosmolatex, dir_chain, dir_out):
             Ok.append(1-Om[i]-OL[i])
         BAO_CC = np.transpose(np.array([H0,Om,OL,Ok,w0,wa,M,a,b,scat,rd]))
     os.chdir(dir_chain+'BAOSN') 
-    filename = 'Chain_{0}Prior_{1}_BAOSN.h5'.format(prior, cosmo)
-    Read_Chain = emcee.backends.HDFBackend(filename)
-    len_ch=len(Read_Chain.get_chain())
-    BAO_SN = Read_Chain.get_chain(discard=(len_ch-burnin), flat=True, thin=thin)
+    filename = 'Chain_FlatPrior_{0}_BAOSN.txt'.format(cosmo)
+    with open(filename, 'r') as file:
+        lines = file.read().splitlines()
+        data = np.array([list(map(float, line.split())) for line in lines])
+    samples = data.reshape((chain_dim, nwalk, par_dim))
+    flat_samples = samples.reshape(-1, par_dim)
+    BAO_SN = flat_samples
     if cosmo=='LCDM':
         H0=np.array(column(BAO_SN,0))
         Om=np.array(column(BAO_SN,1))
@@ -846,10 +877,13 @@ def Table_MCMC(prior, cosmo, cosmolatex, dir_chain, dir_out):
             Ok.append(1-Om[i]-OL[i])
         BAO_SN = np.transpose(np.array([H0,Om,OL,Ok,w0,wa,M,a,b,scat,rd]))
     os.chdir(dir_chain+'CCSN')
-    filename = 'Chain_{0}Prior_{1}_CCSN.h5'.format(prior, cosmo)
-    Read_Chain = emcee.backends.HDFBackend(filename)
-    len_ch=len(Read_Chain.get_chain())
-    CC_SN = Read_Chain.get_chain(discard=(len_ch-burnin), flat=True, thin=thin)
+    filename = 'Chain_FlatPrior_{0}_CCSN.txt'.format(cosmo)
+    with open(filename, 'r') as file:
+        lines = file.read().splitlines()
+        data = np.array([list(map(float, line.split())) for line in lines])
+    samples = data.reshape((chain_dim, nwalk, par_dim))
+    flat_samples = samples.reshape(-1, par_dim)
+    CC_SN = flat_samples
     if cosmo=='LCDM':
         H0=np.array(column(CC_SN,0))
         Om=np.array(column(CC_SN,1))
@@ -893,10 +927,13 @@ def Table_MCMC(prior, cosmo, cosmolatex, dir_chain, dir_out):
             Ok.append(1-Om[i]-OL[i])
         CC_SN = np.transpose(np.array([H0,Om,OL,Ok,w0,wa,M,a,b,scat,rd]))
     os.chdir(dir_chain+'BAOGRB')
-    filename = 'Chain_{0}Prior_{1}_BAOGRB.h5'.format(prior, cosmo)
-    Read_Chain = emcee.backends.HDFBackend(filename)
-    len_ch=len(Read_Chain.get_chain())
-    BAO_GRB = Read_Chain.get_chain(discard=(len_ch-burnin), flat=True, thin=thin)
+    filename = 'Chain_FlatPrior_{0}_BAOGRB.txt'.format(cosmo)
+    with open(filename, 'r') as file:
+        lines = file.read().splitlines()
+        data = np.array([list(map(float, line.split())) for line in lines])
+    samples = data.reshape((chain_dim, nwalk, par_dim))
+    flat_samples = samples.reshape(-1, par_dim)
+    BAO_GRB = flat_samples
     if cosmo=='LCDM':
         H0=np.array(column(BAO_GRB,0))
         Om=np.array(column(BAO_GRB,1))
@@ -940,10 +977,13 @@ def Table_MCMC(prior, cosmo, cosmolatex, dir_chain, dir_out):
             Ok.append(1-Om[i]-OL[i])
         BAO_GRB = np.transpose(np.array([H0,Om,OL,Ok,w0,wa,M,a,b,scat,rd]))
     os.chdir(dir_chain+'CCGRB')
-    filename = 'Chain_{0}Prior_{1}_CCGRB.h5'.format(prior, cosmo)
-    Read_Chain = emcee.backends.HDFBackend(filename)
-    len_ch=len(Read_Chain.get_chain())
-    CC_GRB = Read_Chain.get_chain(discard=(len_ch-burnin), flat=True, thin=thin)
+    filename = 'Chain_FlatPrior_{0}_CCGRB.txt'.format(cosmo)
+    with open(filename, 'r') as file:
+        lines = file.read().splitlines()
+        data = np.array([list(map(float, line.split())) for line in lines])
+    samples = data.reshape((chain_dim, nwalk, par_dim))
+    flat_samples = samples.reshape(-1, par_dim)
+    CC_GRB = flat_samples
     if cosmo=='LCDM':
         H0=np.array(column(CC_GRB,0))
         Om=np.array(column(CC_GRB,1))
@@ -987,10 +1027,13 @@ def Table_MCMC(prior, cosmo, cosmolatex, dir_chain, dir_out):
             Ok.append(1-Om[i]-OL[i])
         CC_GRB = np.transpose(np.array([H0,Om,OL,Ok,w0,wa,M,a,b,scat,rd]))
     os.chdir(dir_chain+'SNGRB')  
-    filename = 'Chain_{0}Prior_{1}_SNGRB.h5'.format(prior, cosmo)
-    Read_Chain = emcee.backends.HDFBackend(filename)
-    len_ch=len(Read_Chain.get_chain())  
-    SN_GRB = Read_Chain.get_chain(discard=(len_ch-burnin), flat=True, thin=thin)
+    filename = 'Chain_FlatPrior_{0}_SNGRB.txt'.format(cosmo)
+    with open(filename, 'r') as file:
+        lines = file.read().splitlines()
+        data = np.array([list(map(float, line.split())) for line in lines])
+    samples = data.reshape((chain_dim, nwalk, par_dim))
+    flat_samples = samples.reshape(-1, par_dim)  
+    SN_GRB = flat_samples
     if cosmo=='LCDM':
         H0=np.array(column(SN_GRB,0))
         Om=np.array(column(SN_GRB,1))
@@ -1035,10 +1078,13 @@ def Table_MCMC(prior, cosmo, cosmolatex, dir_chain, dir_out):
         SN_GRB = np.transpose(np.array([H0,Om,OL,Ok,w0,wa,M,a,b,scat,rd]))
     ###1###
     os.chdir(dir_chain+'BAO')
-    filename = 'Chain_{0}Prior_{1}_BAO.h5'.format(prior, cosmo)
-    Read_Chain = emcee.backends.HDFBackend(filename)
-    len_ch=len(Read_Chain.get_chain())
-    BAO = Read_Chain.get_chain(discard=(len_ch-burnin), flat=True, thin=thin)
+    filename = 'Chain_FlatPrior_{0}_BAO.txt'.format(cosmo)
+    with open(filename, 'r') as file:
+        lines = file.read().splitlines()
+        data = np.array([list(map(float, line.split())) for line in lines])
+    samples = data.reshape((chain_dim, nwalk, par_dim))
+    flat_samples = samples.reshape(-1, par_dim)
+    BAO = flat_samples
     if cosmo=='LCDM':
         H0=np.array(column(BAO,0))
         Om=np.array(column(BAO,1))
@@ -1082,10 +1128,13 @@ def Table_MCMC(prior, cosmo, cosmolatex, dir_chain, dir_out):
             Ok.append(1-Om[i]-OL[i])
         BAO = np.transpose(np.array([H0,Om,OL,Ok,w0,wa,M,a,b,scat,rd]))
     os.chdir(dir_chain+'CC')
-    filename = 'Chain_{0}Prior_{1}_CC.h5'.format(prior, cosmo)
-    Read_Chain = emcee.backends.HDFBackend(filename)
-    len_ch=len(Read_Chain.get_chain())
-    CC = Read_Chain.get_chain(discard=(len_ch-burnin), flat=True, thin=thin)
+    filename = 'Chain_FlatPrior_{0}_CC.txt'.format(cosmo)
+    with open(filename, 'r') as file:
+        lines = file.read().splitlines()
+        data = np.array([list(map(float, line.split())) for line in lines])
+    samples = data.reshape((chain_dim, nwalk, par_dim))
+    flat_samples = samples.reshape(-1, par_dim)
+    CC = flat_samples
     if cosmo=='LCDM':
         H0=np.array(column(CC,0))
         Om=np.array(column(CC,1))
@@ -1129,10 +1178,13 @@ def Table_MCMC(prior, cosmo, cosmolatex, dir_chain, dir_out):
             Ok.append(1-Om[i]-OL[i])
         CC = np.transpose(np.array([H0,Om,OL,Ok,w0,wa,M,a,b,scat,rd]))
     os.chdir(dir_chain+'SN')
-    filename = 'Chain_{0}Prior_{1}_SN.h5'.format(prior, cosmo)
-    Read_Chain = emcee.backends.HDFBackend(filename)
-    len_ch=len(Read_Chain.get_chain())
-    SN = Read_Chain.get_chain(discard=2500, flat=True, thin=thin)
+    filename = 'Chain_FlatPrior_{0}_SN.txt'.format(cosmo)
+    with open(filename, 'r') as file:
+        lines = file.read().splitlines()
+        data = np.array([list(map(float, line.split())) for line in lines])
+    samples = data.reshape((chain_dim, nwalk, par_dim))
+    flat_samples = samples.reshape(-1, par_dim)
+    SN = flat_samples
     if cosmo=='LCDM':
         H0=np.array(column(SN,0))
         Om=np.array(column(SN,1))
@@ -1176,10 +1228,13 @@ def Table_MCMC(prior, cosmo, cosmolatex, dir_chain, dir_out):
             Ok.append(1-Om[i]-OL[i])
         SN = np.transpose(np.array([H0,Om,OL,Ok,w0,wa,M,a,b,scat,rd]))
     os.chdir(dir_chain+'GRB')
-    filename = 'Chain_{0}Prior_{1}_GRB.h5'.format(prior, cosmo)
-    Read_Chain = emcee.backends.HDFBackend(filename)
-    len_ch=len(Read_Chain.get_chain())
-    GRB = Read_Chain.get_chain(discard=(len_ch-burnin), flat=True, thin=thin)
+    filename = 'Chain_FlatPrior_{0}_GRB.txt'.format(cosmo)
+    with open(filename, 'r') as file:
+        lines = file.read().splitlines()
+        data = np.array([list(map(float, line.split())) for line in lines])
+    samples = data.reshape((chain_dim, nwalk, par_dim))
+    flat_samples = samples.reshape(-1, par_dim)
+    GRB = flat_samples
     if cosmo=='LCDM':
         H0=np.array(column(GRB,0))
         Om=np.array(column(GRB,1))
@@ -5716,145 +5771,196 @@ dir_chain = dir_home+'/path/to/chains/'
 ########################
 #### Summary Tables ####
 ########################
-Table_MCMC('Flat', 'FLCDM', r'Flat $\Lambda$CDM', dir_chain, dir_out)
-Table_MCMC('Flat', 'LCDM', r'$\Lambda$CDM', dir_chain, dir_out)
-Table_MCMC('Flat', 'FwCDM', r'Flat $w$CDM', dir_chain, dir_out)
-Table_MCMC('Flat', 'wCDM', r'$w$CDM', dir_chain, dir_out)
-Table_MCMC('Flat', 'Fw0waCDM', r'Flat $w_0w_a$CDM', dir_chain, dir_out)
-Table_MCMC('Flat', 'w0waCDM', r'$w_0w_a$CDM', dir_chain, dir_out)
+chain_dim=500
+nwalk=250
 
-burnin=[4000,4000,4000,4000,4000,4000]
-table_paper('BAOCCSNGRB', burnin, dir_chain, dir_out)
-plot_bestfitMCMC('FLCDM', 'BAOCCSNGRB',  burnin[0], dir_chain, dir_plots)
-plot_bestfitMCMC('LCDM', 'BAOCCSNGRB',  burnin[1], dir_chain, dir_plots)
-plot_bestfitMCMC('FwCDM', 'BAOCCSNGRB',  burnin[2], dir_chain, dir_plots)
-plot_bestfitMCMC('wCDM', 'BAOCCSNGRB',  burnin[3], dir_chain, dir_plots)
-plot_bestfitMCMC('Fw0waCDM', 'BAOCCSNGRB',  burnin[4], dir_chain, dir_plots)
-plot_bestfitMCMC('w0waCDM', 'BAOCCSNGRB',  burnin[5], dir_chain, dir_plots)
+par_dim=7
+Table_MCMC('FLCDM', chain_dim, nwalk, par_dim, r'Flat $\Lambda$CDM', dir_chain, dir_out)
+par_dim=8
+Table_MCMC('LCDM', chain_dim, nwalk, par_dim, r'$\Lambda$CDM', dir_chain, dir_out)
+Table_MCMC('FwCDM', chain_dim, nwalk, par_dim, r'Flat $w$CDM', dir_chain, dir_out)
+par_dim=9
+Table_MCMC('wCDM', chain_dim, nwalk, par_dim, r'$w$CDM', dir_chain, dir_out)
+Table_MCMC('Fw0waCDM', chain_dim, nwalk, par_dim, r'Flat $w_0w_a$CDM', dir_chain, dir_out)
+par_dim=10
+Table_MCMC('w0waCDM', chain_dim, nwalk, par_dim, r'$w_0w_a$CDM', dir_chain, dir_out)
 
-burnin=[4000,4000,4000,4000,4000,4000]
-table_paper('BAO', burnin, dir_chain, dir_out)
-plot_bestfitMCMC('FLCDM', 'BAO',  burnin[0], dir_chain, dir_plots)
-plot_bestfitMCMC('LCDM', 'BAO',  burnin[1], dir_chain, dir_plots)
-plot_bestfitMCMC('FwCDM', 'BAO',  burnin[2], dir_chain, dir_plots)
-plot_bestfitMCMC('wCDM', 'BAO',  burnin[3], dir_chain, dir_plots)
-plot_bestfitMCMC('Fw0waCDM', 'BAO',  burnin[4], dir_chain, dir_plots)
-plot_bestfitMCMC('w0waCDM', 'BAO',  burnin[5], dir_chain, dir_plots)
+table_paper('BAOCCSNGRB', chain_dim, nwalk, dir_chain, dir_out)
+par_dim=7
+plot_bestfitMCMC('FLCDM', 'BAOCCSNGRB',  chain_dim, nwalk, par_dim, dir_chain, dir_plots)
+par_dim=8
+plot_bestfitMCMC('LCDM', 'BAOCCSNGRB',  chain_dim, nwalk, par_dim, dir_chain, dir_plots)
+plot_bestfitMCMC('FwCDM', 'BAOCCSNGRB',  chain_dim, nwalk, par_dim, dir_chain, dir_plots)
+par_dim=9
+plot_bestfitMCMC('wCDM', 'BAOCCSNGRB',  chain_dim, nwalk, par_dim, dir_chain, dir_plots)
+plot_bestfitMCMC('Fw0waCDM', 'BAOCCSNGRB',  chain_dim, nwalk, par_dim, dir_chain, dir_plots)
+par_dim=10
+plot_bestfitMCMC('w0waCDM', 'BAOCCSNGRB',  chain_dim, nwalk, par_dim, dir_chain, dir_plots)
 
-burnin=[4000,4000,4000,4000,4000,4000]
-table_paper('CC', burnin, dir_chain, dir_out)
-plot_bestfitMCMC('FLCDM', 'CC',  burnin[0], dir_chain, dir_plots)
-plot_bestfitMCMC('LCDM', 'CC',  burnin[1], dir_chain, dir_plots)
-plot_bestfitMCMC('FwCDM', 'CC',  burnin[2], dir_chain, dir_plots)
-plot_bestfitMCMC('wCDM', 'CC',  burnin[3], dir_chain, dir_plots)
-plot_bestfitMCMC('Fw0waCDM', 'CC',  burnin[4], dir_chain, dir_plots)
-plot_bestfitMCMC('w0waCDM', 'CC',  burnin[5], dir_chain, dir_plots)
+table_paper('BAO', chain_dim, nwalk, dir_chain, dir_out)
+par_dim=7
+plot_bestfitMCMC('FLCDM', 'BAO',  chain_dim, nwalk, par_dim, dir_chain, dir_plots)
+par_dim=8
+plot_bestfitMCMC('LCDM', 'BAO',  chain_dim, nwalk, par_dim, dir_chain, dir_plots)
+plot_bestfitMCMC('FwCDM', 'BAO',  chain_dim, nwalk, par_dim, dir_chain, dir_plots)
+par_dim=9
+plot_bestfitMCMC('wCDM', 'BAO',  chain_dim, nwalk, par_dim, dir_chain, dir_plots)
+plot_bestfitMCMC('Fw0waCDM', 'BAO',  chain_dim, nwalk, par_dim, dir_chain, dir_plots)
+par_dim=10
+plot_bestfitMCMC('w0waCDM', 'BAO',  chain_dim, nwalk, par_dim, dir_chain, dir_plots)
 
-burnin=[4000,4000,4000,4000,4000,4000]
-table_paper('SN', burnin, dir_chain, dir_out)
-plot_bestfitMCMC('FLCDM', 'SN',  burnin[0], dir_chain, dir_plots)
-plot_bestfitMCMC('LCDM', 'SN',  burnin[1], dir_chain, dir_plots)
-plot_bestfitMCMC('FwCDM', 'SN',  burnin[2], dir_chain, dir_plots)
-plot_bestfitMCMC('wCDM', 'SN',  burnin[3], dir_chain, dir_plots)
-plot_bestfitMCMC('Fw0waCDM', 'SN',  burnin[4], dir_chain, dir_plots)
-plot_bestfitMCMC('w0waCDM', 'SN',  burnin[5], dir_chain, dir_plots)
+table_paper('CC', chain_dim, nwalk, dir_chain, dir_out)
+par_dim=7
+plot_bestfitMCMC('FLCDM', 'CC',  chain_dim, nwalk, par_dim, dir_chain, dir_plots)
+par_dim=8
+plot_bestfitMCMC('LCDM', 'CC',  chain_dim, nwalk, par_dim, dir_chain, dir_plots)
+plot_bestfitMCMC('FwCDM', 'CC',  chain_dim, nwalk, par_dim, dir_chain, dir_plots)
+par_dim=9
+plot_bestfitMCMC('wCDM', 'CC',  chain_dim, nwalk, par_dim, dir_chain, dir_plots)
+plot_bestfitMCMC('Fw0waCDM', 'CC',  chain_dim, nwalk, par_dim, dir_chain, dir_plots)
+par_dim=10
+plot_bestfitMCMC('w0waCDM', 'CC',  chain_dim, nwalk, par_dim, dir_chain, dir_plots)
 
-burnin=[4000,4000,4000,4000,4000,4000]
-table_paper('GRB', burnin, dir_chain, dir_out)
-plot_bestfitMCMC('FLCDM', 'GRB',  burnin[0], dir_chain, dir_plots)
-plot_bestfitMCMC('LCDM', 'GRB',  burnin[1], dir_chain, dir_plots)
-plot_bestfitMCMC('FwCDM', 'GRB',  burnin[2], dir_chain, dir_plots)
-plot_bestfitMCMC('wCDM', 'GRB',  burnin[3], dir_chain, dir_plots)
-plot_bestfitMCMC('Fw0waCDM', 'GRB',  burnin[4], dir_chain, dir_plots)
-plot_bestfitMCMC('w0waCDM', 'GRB',  burnin[5], dir_chain, dir_plots)
+table_paper('SN', chain_dim, nwalk, dir_chain, dir_out)
+par_dim=7
+plot_bestfitMCMC('FLCDM', 'SN',  chain_dim, nwalk, par_dim, dir_chain, dir_plots)
+par_dim=8
+plot_bestfitMCMC('LCDM', 'SN',  chain_dim, nwalk, par_dim, dir_chain, dir_plots)
+plot_bestfitMCMC('FwCDM', 'SN',  chain_dim, nwalk, par_dim, dir_chain, dir_plots)
+par_dim=9
+plot_bestfitMCMC('wCDM', 'SN',  chain_dim, nwalk, par_dim, dir_chain, dir_plots)
+plot_bestfitMCMC('Fw0waCDM', 'SN',  chain_dim, nwalk, par_dim, dir_chain, dir_plots)
+par_dim=10
+plot_bestfitMCMC('w0waCDM', 'SN',  chain_dim, nwalk, par_dim, dir_chain, dir_plots)
 
+table_paper('GRB', chain_dim, nwalk, dir_chain, dir_out)
+par_dim=7
+plot_bestfitMCMC('FLCDM', 'GRB',  chain_dim, nwalk, par_dim, dir_chain, dir_plots)
+par_dim=8
+plot_bestfitMCMC('LCDM', 'GRB',  chain_dim, nwalk, par_dim, dir_chain, dir_plots)
+plot_bestfitMCMC('FwCDM', 'GRB',  chain_dim, nwalk, par_dim, dir_chain, dir_plots)
+par_dim=9
+plot_bestfitMCMC('wCDM', 'GRB',  chain_dim, nwalk, par_dim, dir_chain, dir_plots)
+plot_bestfitMCMC('Fw0waCDM', 'GRB',  chain_dim, nwalk, par_dim, dir_chain, dir_plots)
+par_dim=10
+plot_bestfitMCMC('w0waCDM', 'GRB',  chain_dim, nwalk, par_dim, dir_chain, dir_plots)
 
-burnin=[4000,4000,4000,4000,4000,4000]
-table_paper('BAOCCSN', burnin, dir_chain, dir_out)
-plot_bestfitMCMC('FLCDM', 'BAOCCSN',  burnin[0], dir_chain, dir_plots)
-plot_bestfitMCMC('LCDM', 'BAOCCSN',  burnin[1], dir_chain, dir_plots)
-plot_bestfitMCMC('FwCDM', 'BAOCCSN',  burnin[2], dir_chain, dir_plots)
-plot_bestfitMCMC('wCDM', 'BAOCCSN',  burnin[3], dir_chain, dir_plots)
-plot_bestfitMCMC('Fw0waCDM', 'BAOCCSN',  burnin[4], dir_chain, dir_plots)
-plot_bestfitMCMC('w0waCDM', 'BAOCCSN',  burnin[5], dir_chain, dir_plots)
+table_paper('BAOCCSN', chain_dim, nwalk, dir_chain, dir_out)
+par_dim=7
+plot_bestfitMCMC('FLCDM', 'BAOCCSN',  chain_dim, nwalk, par_dim, dir_chain, dir_plots)
+par_dim=8
+plot_bestfitMCMC('LCDM', 'BAOCCSN',  chain_dim, nwalk, par_dim, dir_chain, dir_plots)
+plot_bestfitMCMC('FwCDM', 'BAOCCSN',  chain_dim, nwalk, par_dim, dir_chain, dir_plots)
+par_dim=9
+plot_bestfitMCMC('wCDM', 'BAOCCSN',  chain_dim, nwalk, par_dim, dir_chain, dir_plots)
+plot_bestfitMCMC('Fw0waCDM', 'BAOCCSN',  chain_dim, nwalk, par_dim, dir_chain, dir_plots)
+par_dim=10
+plot_bestfitMCMC('w0waCDM', 'BAOCCSN',  chain_dim, nwalk, par_dim, dir_chain, dir_plots)
 
-burnin=[4000,4000,4000,4000,4000,4000]
-table_paper('BAOCCGRB', burnin, dir_chain, dir_out)
-plot_bestfitMCMC('FLCDM', 'BAOCCGRB',  burnin[0], dir_chain, dir_plots)
-plot_bestfitMCMC('LCDM', 'BAOCCGRB',  burnin[1], dir_chain, dir_plots)
-plot_bestfitMCMC('FwCDM', 'BAOCCGRB',  burnin[2], dir_chain, dir_plots)
-plot_bestfitMCMC('wCDM', 'BAOCCGRB',  burnin[3], dir_chain, dir_plots)
-plot_bestfitMCMC('Fw0waCDM', 'BAOCCGRB',  burnin[4], dir_chain, dir_plots)
-plot_bestfitMCMC('w0waCDM', 'BAOCCGRB',  burnin[5], dir_chain, dir_plots)
+table_paper('BAOCCGRB', chain_dim, nwalk, dir_chain, dir_out)
+par_dim=7
+plot_bestfitMCMC('FLCDM', 'BAOCCGRB',  chain_dim, nwalk, par_dim, dir_chain, dir_plots)
+par_dim=8
+plot_bestfitMCMC('LCDM', 'BAOCCGRB',  chain_dim, nwalk, par_dim, dir_chain, dir_plots)
+plot_bestfitMCMC('FwCDM', 'BAOCCGRB',  chain_dim, nwalk, par_dim, dir_chain, dir_plots)
+par_dim=9
+plot_bestfitMCMC('wCDM', 'BAOCCGRB',  chain_dim, nwalk, par_dim, dir_chain, dir_plots)
+plot_bestfitMCMC('Fw0waCDM', 'BAOCCGRB',  chain_dim, nwalk, par_dim, dir_chain, dir_plots)
+par_dim=10
+plot_bestfitMCMC('w0waCDM', 'BAOCCGRB',  chain_dim, nwalk, par_dim, dir_chain, dir_plots)
 
-burnin=[4000,4000,4000,4000,4000,4000]
-table_paper('BAOSNGRB', burnin, dir_chain, dir_out)
-plot_bestfitMCMC('FLCDM', 'BAOSNGRB',  burnin[0], dir_chain, dir_plots)
-plot_bestfitMCMC('LCDM', 'BAOSNGRB',  burnin[1], dir_chain, dir_plots)
-plot_bestfitMCMC('FwCDM', 'BAOSNGRB',  burnin[2], dir_chain, dir_plots)
-plot_bestfitMCMC('wCDM', 'BAOSNGRB',  burnin[3], dir_chain, dir_plots)
-plot_bestfitMCMC('Fw0waCDM', 'BAOSNGRB',  burnin[4], dir_chain, dir_plots)
-plot_bestfitMCMC('w0waCDM', 'BAOSNGRB',  burnin[5], dir_chain, dir_plots)
+table_paper('BAOSNGRB', chain_dim, nwalk, dir_chain, dir_out)
+par_dim=7
+plot_bestfitMCMC('FLCDM', 'BAOSNGRB',  chain_dim, nwalk, par_dim, dir_chain, dir_plots)
+par_dim=8
+plot_bestfitMCMC('LCDM', 'BAOSNGRB',  chain_dim, nwalk, par_dim, dir_chain, dir_plots)
+plot_bestfitMCMC('FwCDM', 'BAOSNGRB',  chain_dim, nwalk, par_dim, dir_chain, dir_plots)
+par_dim=9
+plot_bestfitMCMC('wCDM', 'BAOSNGRB',  chain_dim, nwalk, par_dim, dir_chain, dir_plots)
+plot_bestfitMCMC('Fw0waCDM', 'BAOSNGRB',  chain_dim, nwalk, par_dim, dir_chain, dir_plots)
+par_dim=10
+plot_bestfitMCMC('w0waCDM', 'BAOSNGRB',  chain_dim, nwalk, par_dim, dir_chain, dir_plots)
 
-burnin=[4000,4000,4000,4000,4000,4000]
-table_paper('CCSNGRB', burnin, dir_chain, dir_out)
-plot_bestfitMCMC('FLCDM', 'CCSNGRB',  burnin[0], dir_chain, dir_plots)
-plot_bestfitMCMC('LCDM', 'CCSNGRB',  burnin[1], dir_chain, dir_plots)
-plot_bestfitMCMC('FwCDM', 'CCSNGRB',  burnin[2], dir_chain, dir_plots)
-plot_bestfitMCMC('wCDM', 'CCSNGRB',  burnin[3], dir_chain, dir_plots)
-plot_bestfitMCMC('Fw0waCDM', 'CCSNGRB',  burnin[4], dir_chain, dir_plots)
-plot_bestfitMCMC('w0waCDM', 'CCSNGRB',  burnin[5], dir_chain, dir_plots)
+table_paper('CCSNGRB', chain_dim, nwalk, dir_chain, dir_out)
+par_dim=7
+plot_bestfitMCMC('FLCDM', 'CCSNGRB',  chain_dim, nwalk, par_dim, dir_chain, dir_plots)
+par_dim=8
+plot_bestfitMCMC('LCDM', 'CCSNGRB',  chain_dim, nwalk, par_dim, dir_chain, dir_plots)
+plot_bestfitMCMC('FwCDM', 'CCSNGRB',  chain_dim, nwalk, par_dim, dir_chain, dir_plots)
+par_dim=9
+plot_bestfitMCMC('wCDM', 'CCSNGRB',  chain_dim, nwalk, par_dim, dir_chain, dir_plots)
+plot_bestfitMCMC('Fw0waCDM', 'CCSNGRB',  chain_dim, nwalk, par_dim, dir_chain, dir_plots)
+par_dim=10
+plot_bestfitMCMC('w0waCDM', 'CCSNGRB',  chain_dim, nwalk, par_dim, dir_chain, dir_plots)
 
-burnin=[4000,4000,4000,4000,4000,4000]
-table_paper('BAOCC', burnin, dir_chain, dir_out)
-plot_bestfitMCMC('FLCDM', 'BAOCC',  burnin[0], dir_chain, dir_plots)
-plot_bestfitMCMC('LCDM', 'BAOCC',  burnin[1], dir_chain, dir_plots)
-plot_bestfitMCMC('FwCDM', 'BAOCC',  burnin[2], dir_chain, dir_plots)
-plot_bestfitMCMC('wCDM', 'BAOCC',  burnin[3], dir_chain, dir_plots)
-plot_bestfitMCMC('Fw0waCDM', 'BAOCC',  burnin[4], dir_chain, dir_plots)
-plot_bestfitMCMC('w0waCDM', 'BAOCC',  burnin[5], dir_chain, dir_plots)
+table_paper('BAOCC', chain_dim, nwalk, dir_chain, dir_out)
+par_dim=7
+plot_bestfitMCMC('FLCDM', 'BAOCC',  chain_dim, nwalk, par_dim, dir_chain, dir_plots)
+par_dim=8
+plot_bestfitMCMC('LCDM', 'BAOCC',  chain_dim, nwalk, par_dim, dir_chain, dir_plots)
+plot_bestfitMCMC('FwCDM', 'BAOCC',  chain_dim, nwalk, par_dim, dir_chain, dir_plots)
+par_dim=9
+plot_bestfitMCMC('wCDM', 'BAOCC',  chain_dim, nwalk, par_dim, dir_chain, dir_plots)
+plot_bestfitMCMC('Fw0waCDM', 'BAOCC',  chain_dim, nwalk, par_dim, dir_chain, dir_plots)
+par_dim=10
+plot_bestfitMCMC('w0waCDM', 'BAOCC',  chain_dim, nwalk, par_dim, dir_chain, dir_plots)
 
-burnin=[4000,4000,4000,4000,4000,4000]
-table_paper('BAOSN', burnin, dir_chain, dir_out)
-plot_bestfitMCMC('FLCDM', 'BAOSN',  burnin[0], dir_chain, dir_plots)
-plot_bestfitMCMC('LCDM', 'BAOSN',  burnin[1], dir_chain, dir_plots)
-plot_bestfitMCMC('FwCDM', 'BAOSN',  burnin[2], dir_chain, dir_plots)
-plot_bestfitMCMC('wCDM', 'BAOSN',  burnin[3], dir_chain, dir_plots)
-plot_bestfitMCMC('Fw0waCDM', 'BAOSN',  burnin[4], dir_chain, dir_plots)
-plot_bestfitMCMC('w0waCDM', 'BAOSN',  burnin[5], dir_chain, dir_plots)
+table_paper('BAOSN', chain_dim, nwalk, dir_chain, dir_out)
+par_dim=7
+plot_bestfitMCMC('FLCDM', 'BAOSN',  chain_dim, nwalk, par_dim, dir_chain, dir_plots)
+par_dim=8
+plot_bestfitMCMC('LCDM', 'BAOSN',  chain_dim, nwalk, par_dim, dir_chain, dir_plots)
+plot_bestfitMCMC('FwCDM', 'BAOSN',  chain_dim, nwalk, par_dim, dir_chain, dir_plots)
+par_dim=9
+plot_bestfitMCMC('wCDM', 'BAOSN',  chain_dim, nwalk, par_dim, dir_chain, dir_plots)
+plot_bestfitMCMC('Fw0waCDM', 'BAOSN',  chain_dim, nwalk, par_dim, dir_chain, dir_plots)
+par_dim=10
+plot_bestfitMCMC('w0waCDM', 'BAOSN',  chain_dim, nwalk, par_dim, dir_chain, dir_plots)
 
-burnin=[4000,4000,4000,4000,4000,4000]
-table_paper('BAOGRB', burnin, dir_chain, dir_out)
-plot_bestfitMCMC('FLCDM', 'BAOGRB',  burnin[0], dir_chain, dir_plots)
-plot_bestfitMCMC('LCDM', 'BAOGRB',  burnin[1], dir_chain, dir_plots)
-plot_bestfitMCMC('FwCDM', 'BAOGRB',  burnin[2], dir_chain, dir_plots)
-plot_bestfitMCMC('wCDM', 'BAOGRB',  burnin[3], dir_chain, dir_plots)
-plot_bestfitMCMC('Fw0waCDM', 'BAOGRB',  burnin[4], dir_chain, dir_plots)
-plot_bestfitMCMC('w0waCDM', 'BAOGRB',  burnin[5], dir_chain, dir_plots)
+table_paper('BAOGRB', chain_dim, nwalk, dir_chain, dir_out)
+par_dim=7
+plot_bestfitMCMC('FLCDM', 'BAOGRB',  chain_dim, nwalk, par_dim, dir_chain, dir_plots)
+par_dim=8
+plot_bestfitMCMC('LCDM', 'BAOGRB',  chain_dim, nwalk, par_dim, dir_chain, dir_plots)
+plot_bestfitMCMC('FwCDM', 'BAOGRB',  chain_dim, nwalk, par_dim, dir_chain, dir_plots)
+par_dim=9
+plot_bestfitMCMC('wCDM', 'BAOGRB',  chain_dim, nwalk, par_dim, dir_chain, dir_plots)
+plot_bestfitMCMC('Fw0waCDM', 'BAOGRB',  chain_dim, nwalk, par_dim, dir_chain, dir_plots)
+par_dim=10
+plot_bestfitMCMC('w0waCDM', 'BAOGRB',  chain_dim, nwalk, par_dim, dir_chain, dir_plots)
 
-burnin=[4000,4000,4000,4000,4000,4000]
-table_paper('CCSN', burnin, dir_chain, dir_out)
-plot_bestfitMCMC('FLCDM', 'CCSN',  burnin[0], dir_chain, dir_plots)
-plot_bestfitMCMC('LCDM', 'CCSN',  burnin[1], dir_chain, dir_plots)
-plot_bestfitMCMC('FwCDM', 'CCSN',  burnin[2], dir_chain, dir_plots)
-plot_bestfitMCMC('wCDM', 'CCSN',  burnin[3], dir_chain, dir_plots)
-plot_bestfitMCMC('Fw0waCDM', 'CCSN',  burnin[4], dir_chain, dir_plots)
-plot_bestfitMCMC('w0waCDM', 'CCSN',  burnin[5], dir_chain, dir_plots)
+table_paper('CCSN', chain_dim, nwalk, dir_chain, dir_out)
+par_dim=7
+plot_bestfitMCMC('FLCDM', 'CCSN',  chain_dim, nwalk, par_dim, dir_chain, dir_plots)
+par_dim=8
+plot_bestfitMCMC('LCDM', 'CCSN',  chain_dim, nwalk, par_dim, dir_chain, dir_plots)
+plot_bestfitMCMC('FwCDM', 'CCSN',  chain_dim, nwalk, par_dim, dir_chain, dir_plots)
+par_dim=9
+plot_bestfitMCMC('wCDM', 'CCSN',  chain_dim, nwalk, par_dim, dir_chain, dir_plots)
+plot_bestfitMCMC('Fw0waCDM', 'CCSN',  chain_dim, nwalk, par_dim, dir_chain, dir_plots)
+par_dim=10
+plot_bestfitMCMC('w0waCDM', 'CCSN',  chain_dim, nwalk, par_dim, dir_chain, dir_plots)
 
-burnin=[4000,4000,4000,4000,4000,4000]
-table_paper('CCGRB', burnin, dir_chain, dir_out)
-plot_bestfitMCMC('FLCDM', 'CCGRB',  burnin[0], dir_chain, dir_plots)
-plot_bestfitMCMC('LCDM', 'CCGRB',  burnin[1], dir_chain, dir_plots)
-plot_bestfitMCMC('FwCDM', 'CCGRB',  burnin[2], dir_chain, dir_plots)
-plot_bestfitMCMC('wCDM', 'CCGRB',  burnin[3], dir_chain, dir_plots)
-plot_bestfitMCMC('Fw0waCDM', 'CCGRB',  burnin[4], dir_chain, dir_plots)
-plot_bestfitMCMC('w0waCDM', 'CCGRB',  burnin[5], dir_chain, dir_plots)
+table_paper('CCGRB', chain_dim, nwalk, dir_chain, dir_out)
+par_dim=7
+plot_bestfitMCMC('FLCDM', 'CCGRB',  chain_dim, nwalk, par_dim, dir_chain, dir_plots)
+par_dim=8
+plot_bestfitMCMC('LCDM', 'CCGRB',  chain_dim, nwalk, par_dim, dir_chain, dir_plots)
+plot_bestfitMCMC('FwCDM', 'CCGRB',  chain_dim, nwalk, par_dim, dir_chain, dir_plots)
+par_dim=9
+plot_bestfitMCMC('wCDM', 'CCGRB',  chain_dim, nwalk, par_dim, dir_chain, dir_plots)
+plot_bestfitMCMC('Fw0waCDM', 'CCGRB',  chain_dim, nwalk, par_dim, dir_chain, dir_plots)
+par_dim=10
+plot_bestfitMCMC('w0waCDM', 'CCGRB',  chain_dim, nwalk, par_dim, dir_chain, dir_plots)
 
-burnin=[4000,4000,4000,4000,4000,4000]
-table_paper('SNGRB', burnin, dir_chain, dir_out)
-plot_bestfitMCMC('FLCDM', 'SNGRB',  burnin[0], dir_chain, dir_plots)
-plot_bestfitMCMC('LCDM', 'SNGRB',  burnin[1], dir_chain, dir_plots)
-plot_bestfitMCMC('FwCDM', 'SNGRB',  burnin[2], dir_chain, dir_plots)
-plot_bestfitMCMC('wCDM', 'SNGRB',  burnin[3], dir_chain, dir_plots)
-plot_bestfitMCMC('Fw0waCDM', 'SNGRB',  burnin[4], dir_chain, dir_plots)
-plot_bestfitMCMC('w0waCDM', 'SNGRB',  burnin[5], dir_chain, dir_plots)
+table_paper('SNGRB', chain_dim, nwalk, dir_chain, dir_out)
+par_dim=7
+plot_bestfitMCMC('FLCDM', 'SNGRB',  chain_dim, nwalk, par_dim, dir_chain, dir_plots)
+par_dim=8
+plot_bestfitMCMC('LCDM', 'SNGRB',  chain_dim, nwalk, par_dim, dir_chain, dir_plots)
+plot_bestfitMCMC('FwCDM', 'SNGRB',  chain_dim, nwalk, par_dim, dir_chain, dir_plots)
+par_dim=9
+plot_bestfitMCMC('wCDM', 'SNGRB',  chain_dim, nwalk, par_dim, dir_chain, dir_plots)
+plot_bestfitMCMC('Fw0waCDM', 'SNGRB',  chain_dim, nwalk, par_dim, dir_chain, dir_plots)
+par_dim=10
+plot_bestfitMCMC('w0waCDM', 'SNGRB',  chain_dim, nwalk, par_dim, dir_chain, dir_plots)
