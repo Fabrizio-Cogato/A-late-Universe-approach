@@ -3,7 +3,7 @@
 
 This repository contains the main tool implemented to carry out the cosmological analysis described in https://ui.adsabs.harvard.edu/abs/2023arXiv230901375C/abstract
 
-* Analytical_Cosmo_Config.py:   Python script defining functions, likelihood, prior and posterior distribution for the following cosmological models:
+* Analytical_Cosmo_Config.py -- Python script defining functions, likelihood, prior and posterior distribution for the following cosmological models:
     - Flat LCDM
     - LCDM
     - Flat wCDM
@@ -11,9 +11,9 @@ This repository contains the main tool implemented to carry out the cosmological
     - Flat w0waCDM
     - w0waCDM
 
-* Analytical_Cosmo.py:           Python script for running MCMC sampling.
+* Analytical_Cosmo.py -- Python script for running MCMC sampling.
 
-* Plot_Table_Routine.py:         Python script for creating plots and tables from MCMC.
+* Plot_Table_Routine.py -- Python script for creating plots and tables from MCMC.
 
 * path/to/
     - data:   folder with data and covariance matrices of BAO, CC and SN. Note that GRB data are not presented here and will be published in Amati et al. (in prep.).
