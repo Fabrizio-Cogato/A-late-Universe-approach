@@ -1,4 +1,4 @@
-# A late-Universe approach to the weaving of modern cosmology 
+# An analytical late-Universe approach to the weaving of modern cosmology
 ## [F. Cogato, M. Moresco, L. Amati and A. Cimatti] 
 
 This repository contains the main tool implemented to carry out the cosmological analysis described in https://ui.adsabs.harvard.edu/abs/2023arXiv230901375C/abstract
